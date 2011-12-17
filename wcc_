@@ -1,0 +1,85 @@
+#!/usr/bin/env ruby
+
+#
+# Example config:
+#  [wcc_*]
+#  env.wcc_stats_file /my/custom/path
+#
+
+require 'yaml'
+
+WCC_STATS_FILE = "/var/tmp/wcc/stats.yml"
+
+script = File.basename($0)
+@mode = script.gsub('wcc_', '')
+@cmd = $1
+
+def echo_runs()
+	case @cmd
+	when 'config'
+		puts "graph_title wcc runs"
+		#puts "graph_args "
+		puts "graph_vlabel runs"
+		puts "graph_category wcc"
+		#puts "graph_scale yes"
+		#puts "graph_info "
+		puts "nruns.label runs"
+	else
+		puts "nruns.value #{@stats['nruns']}"
+	end
+end
+
+def echo_events()
+	case @cmd
+	when 'config'
+		puts "graph_title wcc events"
+		#puts "graph_args "
+		puts "graph_vlabel events"
+		puts "graph_category wcc"
+		#puts "graph_scale yes"
+		#puts "graph_info "
+		puts "nsites.label sites changed"
+		puts "nnotifications.label notifications sent"
+	else
+		puts "nsites.value #{@stats['nsites']}"
+		puts "nnotifications.value #{@stats['nnotifications']}"
+	end
+end
+
+def echo_changes()
+	case @cmd
+	when 'config'
+		puts "graph_title wcc changes"
+		#puts "graph_args "
+		puts "graph_vlabel changes"
+		puts "graph_category wcc"
+		#puts "graph_scale yes"
+		#puts "graph_info "
+		puts "nlines.label lines changed"
+		puts "nchars.label chars changed"
+	else
+		puts "nlines.value #{@stats['nlines']}"
+		puts "nchars.value #{@stats['nchars']}"
+	end
+end
+
+stats_file = ENV['wcc_stats_file'] || WCC_STATS_FILE
+if File.exists?(stats_file)
+	yaml = YAML.load_file(stats_file)
+	if not yaml
+		# TODO: err
+	else
+		@stats = yaml['stats']
+	end
+end
+
+case @mode
+when 'runs'
+	echo_runs()
+when 'events'
+	echo_events()
+when 'changes'
+	echo_changes()
+else
+	# TODO: err
+end
