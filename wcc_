@@ -12,7 +12,7 @@ WCC_STATS_FILE = "/var/tmp/wcc/stats.yml"
 
 script = File.basename($0)
 @mode = script.gsub('wcc_', '')
-@cmd = $1
+@cmd = ARGV[0]
 
 def echo_runs()
 	case @cmd
@@ -83,3 +83,8 @@ when 'changes'
 else
 	# TODO: err
 end
+
+@stats.each do |k,v|
+	@stats[k] = 0
+end
+File.open(stats_file, 'w+') do |f| YAML.dump({"stats" => @stats}, f) end
