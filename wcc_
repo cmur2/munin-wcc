@@ -18,12 +18,14 @@ def echo_runs()
 	case @cmd
 	when 'config'
 		puts "graph_title wcc runs"
-		#puts "graph_args "
+		# TODO: as COUNTER without reset to zero?
+		puts "graph_args --lower-limit 0"
 		puts "graph_vlabel runs"
 		puts "graph_category wcc"
 		#puts "graph_scale yes"
-		#puts "graph_info "
+		puts "graph_info This graph shows the number of wcc runs since last query."
 		puts "nruns.label runs"
+		puts "nruns.info Number of wcc runs."
 	else
 		puts "nruns.value #{@stats['nruns']}"
 		@stats['nruns'] = 0
@@ -35,13 +37,15 @@ def echo_events()
 	case @cmd
 	when 'config'
 		puts "graph_title wcc events"
-		#puts "graph_args "
+		puts "graph_args --lower-limit 0"
 		puts "graph_vlabel events"
 		puts "graph_category wcc"
 		#puts "graph_scale yes"
-		#puts "graph_info "
+		puts "graph_info This graph shows 'events' that happened in wcc since last query."
 		puts "nsites.label sites changed"
+		puts "nsites.info Detected site changes"
 		puts "nnotifications.label notifications sent"
+		puts "nnotifications.info Sent notifications by wcc's noticator plugins"
 	else
 		puts "nsites.value #{@stats['nsites']}"
 		puts "nnotifications.value #{@stats['nnotifications']}"
@@ -55,13 +59,15 @@ def echo_changes()
 	case @cmd
 	when 'config'
 		puts "graph_title wcc changes"
-		#puts "graph_args "
+		puts "graph_args --lower-limit 0"
 		puts "graph_vlabel changes"
 		puts "graph_category wcc"
 		#puts "graph_scale yes"
-		#puts "graph_info "
-		puts "nlines.label lines changed"
-		puts "nchars.label chars changed"
+		puts "graph_info This graph shows the total amount of changes detected by wcc since last query."
+		puts "nlines.label lines"
+		puts "nlines.info Number of lines changed."
+		puts "nchars.label chars"
+		puts "nchars.info Number of characters changed (inline diff)."
 	else
 		puts "nlines.value #{@stats['nlines']}"
 		puts "nchars.value #{@stats['nchars']}"
@@ -71,14 +77,21 @@ def echo_changes()
 	end
 end
 
+# open stderr
+$stderr = IO.new(2, "w")
+
 @stats_file = ENV['wcc_stats_file'] || WCC_STATS_FILE
 if File.exists?(@stats_file)
 	yaml = YAML.load_file(@stats_file)
 	if not yaml
-		# TODO: err
+		$stderr.puts "Could not read wcc stats file #{@stats_file}! File is empty."
+		exit 2
 	else
 		@stats = yaml['stats']
 	end
+else
+	$stderr.puts "Could not find wcc stats file #{@stats_file}! File does not exist."
+	exit 1
 end
 
 case @mode
@@ -89,5 +102,6 @@ when 'events'
 when 'changes'
 	echo_changes()
 else
-	# TODO: err
+	$stderr.puts "Unknown mode #{@mode} for wcc_!"
+	exit 3
 end
