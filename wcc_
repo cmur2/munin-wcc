@@ -26,6 +26,8 @@ def echo_runs()
 		puts "nruns.label runs"
 	else
 		puts "nruns.value #{@stats['nruns']}"
+		@stats['nruns'] = 0
+		File.open(stats_file, 'w+') do |f| YAML.dump({"stats" => @stats}, f) end
 	end
 end
 
@@ -43,6 +45,9 @@ def echo_events()
 	else
 		puts "nsites.value #{@stats['nsites']}"
 		puts "nnotifications.value #{@stats['nnotifications']}"
+		@stats['nsites'] = 0
+		@stats['nnotifications'] = 0
+		File.open(stats_file, 'w+') do |f| YAML.dump({"stats" => @stats}, f) end
 	end
 end
 
@@ -60,6 +65,9 @@ def echo_changes()
 	else
 		puts "nlines.value #{@stats['nlines']}"
 		puts "nchars.value #{@stats['nchars']}"
+		@stats['nlines'] = 0
+		@stats['nchars'] = 0
+		File.open(stats_file, 'w+') do |f| YAML.dump({"stats" => @stats}, f) end
 	end
 end
 
@@ -83,8 +91,3 @@ when 'changes'
 else
 	# TODO: err
 end
-
-@stats.each do |k,v|
-	@stats[k] = 0
-end
-File.open(stats_file, 'w+') do |f| YAML.dump({"stats" => @stats}, f) end
