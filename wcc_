@@ -26,6 +26,7 @@ def echo_runs()
 		puts "graph_info This graph shows the number of wcc runs since last query."
 		puts "nruns.label runs"
 		puts "nruns.info Number of wcc runs."
+		puts "nruns.type GAUGE"
 	else
 		puts "nruns.value #{@stats['nruns']}"
 		@stats['nruns'] = 0
@@ -33,24 +34,36 @@ def echo_runs()
 	end
 end
 
-def echo_events()
+def echo_update()
 	case @cmd
 	when 'config'
 		puts "graph_title wcc events"
 		puts "graph_args --lower-limit 0"
 		puts "graph_vlabel events"
 		puts "graph_category wcc"
+		puts "graph_order nsites nnotifications nerrors"
 		#puts "graph_scale yes"
 		puts "graph_info This graph shows 'events' that happened in wcc since last query."
-		puts "nsites.label sites changed"
+		puts "nsites.label sites"
 		puts "nsites.info Detected site changes"
-		puts "nnotifications.label notifications sent"
+		puts "nsites.type GAUGE"
+		puts "nsites.draw AREA"
+		puts "nnotifications.label notifications"
 		puts "nnotifications.info Sent notifications by wcc's noticator plugins"
+		puts "nnotifications.type GAUGE"
+		puts "nnotifications.draw STACK"
+		puts "nerrors.label errors"
+		puts "nerrors.info Errors found on site fetch"
+		puts "nerrors.type GAUGE"
+		puts "nerrors.draw STACK"
+		puts "nerrors.colour ff0000"
 	else
 		puts "nsites.value #{@stats['nsites']}"
 		puts "nnotifications.value #{@stats['nnotifications']}"
+		puts "nerrors.value #{@stats['nerrors']}"
 		@stats['nsites'] = 0
 		@stats['nnotifications'] = 0
+		@stats['nerrors'] = 0
 		File.open(@stats_file, 'w+') do |f| YAML.dump({"stats" => @stats}, f) end
 	end
 end
@@ -62,17 +75,20 @@ def echo_changes()
 		puts "graph_args --lower-limit 0"
 		puts "graph_vlabel changes"
 		puts "graph_category wcc"
+		puts "graph_order nlines nhunks"
 		#puts "graph_scale yes"
 		puts "graph_info This graph shows the total amount of changes detected by wcc since last query."
 		puts "nlines.label lines"
 		puts "nlines.info Number of lines changed."
-		puts "nchars.label chars"
-		puts "nchars.info Number of characters changed (inline diff)."
+		puts "nlines.type GAUGE"
+		puts "nhunks.label changesets"
+		puts "nhunks.info Number of changesets."
+		puts "nhunks.type GAUGE"
 	else
 		puts "nlines.value #{@stats['nlines']}"
-		puts "nchars.value #{@stats['nchars']}"
+		puts "nhunks.value #{@stats['nhunks']}"
 		@stats['nlines'] = 0
-		@stats['nchars'] = 0
+		@stats['nhunks'] = 0
 		File.open(@stats_file, 'w+') do |f| YAML.dump({"stats" => @stats}, f) end
 	end
 end
@@ -97,8 +113,8 @@ end
 case @mode
 when 'runs'
 	echo_runs()
-when 'events'
-	echo_events()
+when 'update'
+	echo_update()
 when 'changes'
 	echo_changes()
 else
