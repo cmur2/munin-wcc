@@ -1,5 +1,12 @@
 #!/usr/bin/env ruby
 
+# Source: https://github.com/cmur2/munin-wcc
+
+#
+# Example usage:
+#  Do
+#    ln -s /path/to/wcc_ wcc_<mode>
+#  where <mode> is one of runs|update|changes.
 #
 # Example config:
 #  [wcc_*]
